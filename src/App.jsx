@@ -35,7 +35,7 @@ const App = () => {
     const filesArray = Array.from(uploadedFiles);
     const filesWithDuration = await Promise.all(
       filesArray.map(async (file) => {
-        const durationSeconds = await getMediaDuration(file);
+        const durationSeconds = Math.round(await getMediaDuration(file)); // FIX
         return {
           file,
           name: file.name,
@@ -90,7 +90,11 @@ const App = () => {
   const totalSecondsAccumulated = files.reduce((total, file) => total + file.durationSeconds, 0);
   const { minutes: totalMinutesWithSeconds, seconds: remainingSeconds } = formatDuration(totalSecondsAccumulated);
 
-  const totalCharge = (totalSecondsAccumulated / 60) * chargePerMinute;
+  const combineMinutes = (minutes, seconds) => {
+    return parseFloat(`${minutes}.${seconds.toString().padStart(2, "0")}`);
+  };
+
+  const totalCharge = combineMinutes(totalMinutesWithSeconds, remainingSeconds) * chargePerMinute ;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8 px-4 font-[Poppins]">
@@ -166,7 +170,7 @@ const App = () => {
               <div>
                 <p className="text-blue-300 text-sm">Total Duration</p>
                 <p className="text-2xl font-bold text-white">
-                  {totalMinutesWithSeconds}m {remainingSeconds}s
+                  {totalMinutesWithSeconds}m {remainingSeconds}s 
                 </p>
               </div>
               <FaClock className="text-3xl text-blue-400 opacity-80" />
